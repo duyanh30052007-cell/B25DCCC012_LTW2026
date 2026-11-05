@@ -1,8 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Home({ playerName, setPlayerName }) {
+export default function Home({ playerName, setPlayerName, history }) {
   const navigate = useNavigate();
+  const best = [...history].sort((a, b) => b.score - a.score)[0];
   function startGame(event) {
     event.preventDefault();
     if (playerName.trim()) navigate("/play");
@@ -21,6 +22,7 @@ export default function Home({ playerName, setPlayerName }) {
           <li>Bạn có 3 quyền trợ giúp, mỗi quyền dùng một lần.</li>
         </ul>
       </div>
+      {best && <p className="record">🏆 Kỷ lục: <b>{best.score} điểm – {best.name}</b></p>}
       <form className="start-form" onSubmit={startGame}>
         <label htmlFor="playerName">Tên người chơi</label>
         <input id="playerName" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="Nhập tên của bạn..." />

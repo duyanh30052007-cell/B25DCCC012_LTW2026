@@ -4,3 +4,4 @@ export const TOPICS = ["HTML", "CSS", "JavaScript", "React"];
 export const LETTERS = ["A", "B", "C", "D"];
 export const TIME_PER_QUESTION = 20;
 export const EXTRA_TIME = 15;
+export const HISTORY_KEY = "ltw_rcv_history";

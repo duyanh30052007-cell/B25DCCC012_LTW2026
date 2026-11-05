@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { POINTS, TIME_PER_QUESTION } from "../data";
+import { POINTS, TIME_PER_QUESTION, EXTRA_TIME } from "../data";
 import { calcScore } from "../utils";
 import QuestionCard from "../components/QuestionCard";
 import AnswerButton from "../components/AnswerButton";
 import Timer from "../components/Timer";
 import ScoreBoard from "../components/ScoreBoard";
+import Helpers from "../components/Helpers";
 
 export default function Play({ questions, playerName, onFinish }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -13,6 +14,9 @@ export default function Play({ questions, playerName, onFinish }) {
   const [status, setStatus] = useState("answering");
   const [selected, setSelected] = useState(null);
   const [answers, setAnswers] = useState([]);
+  const [used, setUsed] = useState({ fifty: false, extra: false, lifeline: false });
+  const [hiddenOptions, setHiddenOptions] = useState([]);
+  const [lifeline, setLifeline] = useState(false);
   const question = questions[currentIndex];
   const score = calcScore(answers);
 
@@ -22,8 +26,19 @@ export default function Play({ questions, playerName, onFinish }) {
   }, [currentIndex]);
 
   useEffect(() => {
+    const onKeyDown = (event) => {
+      if (status !== "answering") return;
+      const number = Number(event.key);
+      if (number >= 1 && number <= 4 && !hiddenOptions.includes(number - 1)) chooseAnswer(number - 1);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
+  useEffect(() => {
     if (status !== "answering" || seconds > 0) return;
     resolveAnswer(null, true);
+    // Chỉ xử lý một lần khi đồng hồ về 0.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seconds, status]);
 
@@ -41,29 +56,39 @@ export default function Play({ questions, playerName, onFinish }) {
   }, [status]);
 
   function chooseAnswer(index) {
-    if (status !== "answering") return;
+    if (status !== "answering" || hiddenOptions.includes(index)) return;
     setSelected(index);
     setStatus("locked");
   }
 
   function resolveAnswer(choice, timedOut) {
     const correct = !timedOut && choice === question.answer;
-    const nextAnswers = [...answers, { id: question.id, level: question.level, correct }];
+    const passedByLifeline = lifeline;
+    const record = { id: question.id, level: question.level, correct, lifeline: passedByLifeline && !correct };
+    const nextAnswers = [...answers, record];
     setAnswers(nextAnswers);
 
-    if (!correct || currentIndex === questions.length - 1) {
-      onFinish({
-        playerName,
-        answers: nextAnswers,
-        reason: currentIndex === questions.length - 1 && correct ? "completed" : timedOut ? "timeout" : "wrong"
-      });
+    if ((!correct && !passedByLifeline) || currentIndex === questions.length - 1) {
+      onFinish({ playerName, answers: nextAnswers, reason: currentIndex === questions.length - 1 && (correct || passedByLifeline) ? "completed" : timedOut ? "timeout" : "wrong" });
       return;
     }
-
     setCurrentIndex((old) => old + 1);
     setSeconds(TIME_PER_QUESTION);
     setSelected(null);
+    setHiddenOptions([]);
+    setLifeline(false);
     setStatus("answering");
+  }
+
+  function useHelper(type) {
+    if (status !== "answering" || used[type]) return;
+    setUsed((old) => ({ ...old, [type]: true }));
+    if (type === "fifty") {
+      const wrong = question.options.map((_, i) => i).filter((i) => i !== question.answer && !hiddenOptions.includes(i));
+      if (wrong.length) setHiddenOptions((old) => [...old, wrong[Math.floor(Math.random() * wrong.length)]]);
+    } else if (type === "extra") {
+      setSeconds((old) => old + EXTRA_TIME);
+    } else setLifeline(true);
   }
 
   if (!question) return <Navigate to="/" replace />;
@@ -81,13 +106,15 @@ export default function Play({ questions, playerName, onFinish }) {
               if (index === question.answer) answerState = "answer-correct";
               else if (selected === index) answerState = "answer-wrong";
             }
-            return <AnswerButton key={index} index={index} text={option}
-              onClick={chooseAnswer} disabled={status !== "answering"} state={answerState} />;
+            return <AnswerButton key={index} index={index} text={hiddenOptions.includes(index) ? "Đáp án đã bị loại" : option}
+              onClick={chooseAnswer} disabled={status !== "answering" || hiddenOptions.includes(index)} state={answerState} />;
           })}
         </div>
+        <Helpers used={used} onUse={useHelper} status={status} lifeline={lifeline} />
         {status === "revealed" && <p className={`answer-feedback ${selected === question.answer ? "feedback-good" : "feedback-bad"}`}>
-          {selected === question.answer ? `Chính xác! +${POINTS[question.level]} điểm` : "Chưa chính xác!"}
+          {selected === question.answer ? `Chính xác! +${POINTS[question.level]} điểm` : lifeline ? "Phao cứu sinh đã giúp bạn qua câu này." : "Chưa chính xác!"}
         </p>}
+        <p className="keyboard-hint">Mẹo: nhấn phím 1, 2, 3, 4 để chọn A, B, C, D.</p>
       </div>
       <ScoreBoard answers={answers} currentIndex={currentIndex} score={score} />
     </section>
