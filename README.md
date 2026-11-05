@@ -1,70 +1,87 @@
-# Getting Started with Create React App
+# TH02 – Rung chuông vàng (ReactJS)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Cấu trúc thư mục
 
-## Available Scripts
+```text
+rungchuong/
+├── public/
+│   └── data/
+│       └── questions.json
+└── src/
+    ├── index.js
+    ├── App.js
+    ├── App.css
+    ├── data.js
+    ├── utils.js
+    ├── components/
+    │   ├── Layout.js
+    │   ├── NavBar.js
+    │   ├── QuestionCard.js
+    │   ├── AnswerButton.js
+    │   ├── Timer.js
+    │   ├── ScoreBoard.js
+    │   └── Helpers.js
+    └── pages/
+        ├── Home.js
+        ├── Play.js
+        ├── Result.js
+        ├── History.js
+        ├── QuestionBank.js
+        ├── QuestionDetail.js
+        └── NotFound.js
+```
 
-In the project directory, you can run:
+## Phân chia theo 3 bài trong đề
 
-### `npm start`
+### Bài 1 – Giao diện và ngân hàng câu hỏi
+- `index.js`: cấu hình `BrowserRouter`.
+- `App.js`: state `questions`, `loading`, `error`, `playerName`, `history`; tải JSON bằng Axios; cấu hình Router.
+- `components/Layout.js`, `components/NavBar.js`: bố cục và menu.
+- `pages/Home.js`, `pages/QuestionBank.js`, `pages/QuestionDetail.js`, `pages/NotFound.js`.
+- `public/data/questions.json`: 15 câu hỏi.
+- `QuestionBank.js`: lọc theo chủ đề và tìm kiếm bằng hàm `handleTermShift`.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Bài 2 – Trò chơi, thời gian và kết quả
+- `pages/Play.js`: hiển thị câu hỏi, chọn đáp án, đếm ngược 20 giây, tính điểm, xử lý trả lời sai/hết giờ.
+- `components/QuestionCard.js`, `AnswerButton.js`, `Timer.js`, `ScoreBoard.js`.
+- `pages/Result.js`: hiển thị điểm và danh hiệu.
+- `utils.js`: `calcScore()` và `getRank()`.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Bài 3 – Trợ giúp, phím tắt và lịch sử
+- `components/Helpers.js`: loại một đáp án, thêm 15 giây, phao cứu sinh.
+- `pages/Play.js`: phím tắt 1–4 và áp dụng quyền trợ giúp.
+- `pages/History.js`: lịch sử, điểm cao nhất và điểm trung bình.
+- `App.js`: lưu lịch sử bằng `localStorage`.
 
-### `npm test`
+## Chạy chương trình
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Cần cài Node.js LTS. Mở Terminal ở thư mục này và chạy:
 
-### `npm run build`
+```bash
+npm install
+npm install axios react-router-dom@6
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Ứng dụng chạy ở `http://localhost:3000`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Commit theo từng bài trên nhánh TH02
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Nên commit sau khi hoàn thành từng phần:
+```bash
+git checkout -b TH02
+# Sau khi làm xong Bài 1:
+git add .
+git commit -m "Bai 1 - Giao dien va ngan hang cau hoi"
 
-### `npm run eject`
+# Sau khi làm xong Bài 2:
+git add .
+git commit -m "Bai 2 - Tro choi va ket qua"
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Sau khi làm xong Bài 3:
+git add .
+git commit -m "Bai 3 - Tro giup va lich su"
+git push -u origin TH02
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Các lệnh commit trên là hướng dẫn quy trình; hãy chạy `git add` và `git commit` ở đúng thời điểm sau khi hoàn thành từng bài. Nếu bạn đã có repository thì không cần tạo repository mới.
